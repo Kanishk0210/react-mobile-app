@@ -1,7 +1,5 @@
 import * as ActionTypes from './ActionTypes';
 import { baseUrl } from '../shared/baseUrl';
-import { comments } from '../shared/redux/comments';
-import { DISHES_LOADING } from '../shared/redux/ActionTypes';
 
 export const fetchComments = () => (dispatch) => {
     return fetch(baseUrl + 'comments')
@@ -21,7 +19,7 @@ export const fetchComments = () => (dispatch) => {
     .then(response => response.json())
     .then(comments => dispatch(addComments(comments)))
     .catch(error => dispatch(commentsFailed(error.message)));
-}
+};
 
 export const commentsFailed = (errMess) => ({
     type: ActionTypes.COMMENTS_FAILED,
@@ -54,10 +52,10 @@ export const fetchDishes = () => (dispatch) => {
     .then(response => response.json())
     .then(dishes => dispatch(addDishes(dishes)))
     .catch(error => dispatch(dishesFailed(error.message)));
-}
+};
 
 export const dishesLoading = () => ({
-    type: DISHES_LOADING
+    type: ActionTypes.DISHES_LOADING
 });
 
 export const dishesFailed = (errMess) => ({
@@ -91,10 +89,10 @@ export const fetchPromos = () => (dispatch) => {
     .then(response => response.json())
     .then(promos => dispatch(addPromos(promos)))
     .catch(error => dispatch(promosFailed(error.message)));
-}
+};
 
 export const promosLoading = () => ({
-    type: PROMOS_LOADING
+    type: ActionTypes.PROMOS_LOADING
 });
 
 export const promosFailed = (errMess) => ({
@@ -128,10 +126,10 @@ export const fetchLeaders = () => (dispatch) => {
     .then(response => response.json())
     .then(leaders => dispatch(addLeaders(leaders)))
     .catch(error => dispatch(leadersFailed(error.message)));
-}
+};
 
 export const leadersLoading = () => ({
-    type: LEADERS_LOADING
+    type: ActionTypes.LEADERS_LOADING
 });
 
 export const leadersFailed = (errMess) => ({

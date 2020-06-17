@@ -6,13 +6,13 @@ import {leaders} from './leaders';
 import thunk from 'redux-thunk';
 import logger from 'redux-logger';
 
-export const configureStore = () => {
+export const ConfigureStore = () => {
     const store = createStore(
         combineReducers({            
-            dishes: dishes,
-            comments: comments,
-            promotions: promotions,
-            leaders: leaders,
+            dishes,
+            comments,
+            promotions,
+            leaders,
             
         }),
         applyMiddleware(thunk, logger)
