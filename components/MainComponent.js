@@ -9,6 +9,7 @@ import About from './AboutComponent';
 import { Icon } from 'react-native-elements';
 import { connect } from 'react-redux';
 import { fetchDishes, fetchComments, fetchLeaders, fetchPromos} from '../redux/ActionCreators';
+import Reservation from './ReservationComponent';
 
 const mapStateToProps = state => {
     return {
@@ -51,6 +52,24 @@ const MenuNavigator = createStackNavigator({
 
 const HomeNavigator = createStackNavigator({
     Home: { screen: Home },
+}, {
+    navigationOptions: ({ navigation }) => ({
+        headerStyle: {
+            backgroundColor: '#512DAB'
+        },
+        headerTintColor: '#fff',
+        headerTitleStyle: {
+            color: '#fff'
+        },
+        headerLeft: <Icon name='menu' size={24}
+                color='white'
+                onPress= {() => navigation.toggleDrawer()}
+                />
+    })
+});
+
+const ReservationNavigator = createStackNavigator({
+    Contact: { screen: Reservation },
 }, {
     navigationOptions: ({ navigation }) => ({
         headerStyle: {
@@ -175,6 +194,20 @@ const MainNavigator = createDrawerNavigator({
                 <Icon name='address-card'
                     type='font-awesome'
                     size={22}
+                    color={tintColor}
+                    />
+            )
+        }
+    },
+    Reservation: {
+        screen: ReservationNavigator,
+        navigationOptions: {
+            title: 'Reserve Table',
+            drawerLabel: 'Reserve Table',
+            draweIcon: ({ tintColor }) => (
+                <Icon name='cutlery'
+                    type='font-awesome'
+                    size={24}
                     color={tintColor}
                     />
             )
