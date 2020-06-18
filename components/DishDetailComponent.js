@@ -123,6 +123,15 @@ class DishDetail extends Component {
         this.props.postComment(dishId, this.state.rating, this.state.author, this.state.comment);
     }
 
+    resetState() {
+        this.setState({
+            author: '',
+            rating: '',
+            comment: '',
+            showModal: false
+        });
+    }
+
     render() {
 
         const dishId = this.props.navigation.getParam('dishId','');
@@ -167,7 +176,8 @@ class DishDetail extends Component {
                             <View margin={10}>
                                 <Button  
                                     color='#7f7f7f'
-                                    title='Cancel'                                
+                                    title='Cancel'   
+                                    onPress={() => {this.toggleModal(); this.resetState();}}                             
                                     />
                             </View>                         
                                 
