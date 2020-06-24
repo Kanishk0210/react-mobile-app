@@ -2,7 +2,7 @@ import React from 'react';
 import Home from './HomeComponent';
 import Menu from './MenuComponent';
 import DishDetail from './DishDetailComponent';
-import { View, Platform, ScrollView, Text, StyleSheet, Image } from 'react-native';
+import { View, Platform, ScrollView, Text, StyleSheet, Image, ToastAndroid } from 'react-native';
 import { createStackNavigator, createDrawerNavigator, DrawerItems, SafeAreaView } from 'react-navigation';
 import Contact from './ContactComponent';
 import About from './AboutComponent';
@@ -11,6 +11,8 @@ import { connect } from 'react-redux';
 import { fetchDishes, fetchComments, fetchLeaders, fetchPromos} from '../redux/ActionCreators';
 import Reservation from './ReservationComponent';
 import Favorites from './FavoritesComponent';
+import Login from './LoginComponent';
+import NetInfo from '@react-native-community/netinfo';
 
 const mapStateToProps = state => {
     return {
@@ -70,7 +72,7 @@ const HomeNavigator = createStackNavigator({
 });
 
 const ReservationNavigator = createStackNavigator({
-    Contact: { screen: Reservation },
+    Reservation: { screen: Reservation },
 }, {
     navigationOptions: ({ navigation }) => ({
         headerStyle: {
@@ -88,7 +90,25 @@ const ReservationNavigator = createStackNavigator({
 });
 
 const FavoritesNavigator = createStackNavigator({
-    Contact: { screen: Favorites },
+    Favorites: { screen: Favorites },
+}, {
+    navigationOptions: ({ navigation }) => ({
+        headerStyle: {
+            backgroundColor: '#512DAB'
+        },
+        headerTintColor: '#fff',
+        headerTitleStyle: {
+            color: '#fff'
+        },
+        headerLeft: <Icon name='menu' size={24}
+                color='white'
+                onPress= {() => navigation.toggleDrawer()}
+                />
+    })
+});
+
+const LoginNavigator = createStackNavigator({
+    Login: { screen: Login },
 }, {
     navigationOptions: ({ navigation }) => ({
         headerStyle: {
@@ -162,6 +182,21 @@ const customDrawerContentComponent = (props) => (
 );
 
 const MainNavigator = createDrawerNavigator({
+    Login: {
+        screen: LoginNavigator,
+        navigationOptions: {
+            title: 'Login',
+            drawerLabel: 'Login',
+            draweIcon: ({ tintColor }) => (                
+                <Icon name='sign-in'
+                    type='font-awesome'
+                    size={24}
+                    color={tintColor}
+                    />
+            )
+        },
+        
+    },
     Home: {
         screen: HomeNavigator,
         navigationOptions: {
@@ -241,12 +276,13 @@ const MainNavigator = createDrawerNavigator({
                 <Icon name='heart'
                     type='font-awesome'
                     size={24}
-                    color={tintColor}
+                    color='white'
                     />
             )
         }
     }
 }, {
+    initialRouteName: 'Home',
     drawerBackgroundColor: '#D1C4E9',
     contentComponent: customDrawerContentComponent
 });
@@ -258,7 +294,40 @@ class Main extends React.Component{
         this.props.fetchComments();
         this.props.fetchPromos();
         this.props.fetchLeaders();
+
+        NetInfo.fetch()
+        .then(connectionInfo => {
+            ToastAndroid.show('Initial Network Connectivity Type: '
+                + connectionInfo.type ,
+                ToastAndroid.LONG)
+        });
+        NetInfo.addEventListener(state => {            
+            this.handleConnectivityChange(state);
+          });
     }
+
+    componentWillUnmount() {        
+          
+    }
+
+    handleConnectivityChange = (connectionInfo) => {
+    switch (connectionInfo.type) {
+        case 'none':
+        ToastAndroid.show('You are now offline!', ToastAndroid.LONG);
+        break;
+        case 'wifi':
+        ToastAndroid.show('You are now connected to WiFi!', ToastAndroid.LONG);
+        break;
+        case 'cellular':
+        ToastAndroid.show('You are now connected to Cellular!', ToastAndroid.LONG);
+        break;
+        case 'unknown':
+        ToastAndroid.show('You now have unknown connection!', ToastAndroid.LONG);
+        break;
+        default:
+        break;
+    }
+    }      
 
     render() {
         return(

@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { View, Text, FlatList, ScrollView, StyleSheet, Modal, Button } from "react-native";
+import { View, Text, FlatList, ScrollView, StyleSheet, Modal, Button, Alert, PanResponder, Share } from "react-native";
 import { Card, Icon, Rating, Input } from "react-native-elements";
 import { connect } from 'react-redux';
 import { baseUrl } from '../shared/baseUrl';
@@ -13,7 +13,7 @@ const mapStateToProps = state => {
         comments: state.comments,
         favorites: state.favorites
     }
-}
+};
 
 const mapDispatchToProps = dispatch => ({
     postFavorite: (dishId) => dispatch(postFavorite(dishId)),
@@ -24,10 +24,77 @@ function RenderDish(props) {
 
     const dish = props.dishes;
 
+    handleViewRef = ref => view = ref;
+
+    const recognizeDrag = ({moveX, moveY, dx, dy}) => {
+        if(dx<-100)
+            return true;
+        else 
+            return false;
+    };
+
+    const recognizeComment = ({moveX, moveY, dx, dy}) => {
+        if(dx>100)
+            return true;
+        else 
+            return false;
+    };
+
+    const panResponder = PanResponder.create({
+        onStartShouldSetPanResponder: (e, gestureState) => {
+            return true;
+        },
+        
+        onPanResponderGrant: () => {
+            view.rubberBand(1000)
+                .then(endState => console.log(endState.finished ? 'finished' : 'cancelled'));
+        },
+
+        onPanResponderEnd: (e, gestureState) => {
+            console.log('pan responder end', gestureState);
+            if(recognizeDrag(gestureState)) {
+                Alert.alert(
+                    'Add Favorite',
+                    'Are you sure you wish to add ' + dish.name + ' to your favorites?',
+                    [
+                        {
+                            text: 'Cancel',
+                            onPress: console.log('Cancelled'),
+                            style: 'cancel'                            
+                        },
+                        {
+                            text: 'Ok',
+                            onPress: () => props.favorite ? console.log('Already') : props.onPress(),
+                            style: 'default'
+                        },                        
+                    ],
+                    {cancelable: false}
+                );} 
+            if(recognizeComment(gestureState))
+                {props.toggleModal();}     
+
+            return true;
+        }
+        
+    });
+
+    const shareDish = (title, message, url) => {
+        Share.share({
+            title: title,
+            message: message,
+            url: url
+        }, {
+            dialogTitle: 'share ' + dish.name
+        });
+    }
+
         if(dish!=null) {
             return(
                 <View>
-                    <Animatable.View animation="fadeInDown" duration={2000} delay={1000}>
+                    <Animatable.View animation="fadeInDown" duration={2000} delay={1000}
+                        ref={handleViewRef}
+                        {...panResponder.panHandlers} 
+                        >
                         <Card
                             featuredTitle={dish.name}
                             image={{uri: baseUrl + dish.image}}
@@ -50,6 +117,14 @@ function RenderDish(props) {
                                 color='#512DA8'
                                 onPress={() => props.toggleModal()}
                                 /> 
+                            <Icon 
+                                raised
+                                reverse
+                                name='share'
+                                type='font-awesome'
+                                color='#512DA8'
+                                onPress={() => shareDish(dish.name, dish.description, baseUrl + dish.image)}
+                                />
                             </View>                                                               
                         </Card> 
                     </Animatable.View>                   
@@ -136,7 +211,7 @@ class DishDetail extends Component {
             showModal: false
         });
     }
-
+    RenderDish
     render() {
 
         const dishId = this.props.navigation.getParam('dishId','');
