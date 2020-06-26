@@ -4,6 +4,8 @@ import Datepicker from 'react-native-datepicker';
 import * as Animatable from 'react-native-animatable';
 import { Notifications } from 'expo';
 import * as Permissions from 'expo-permissions';
+import * as Calendar from 'expo-calendar';
+import * as AddCalendarEvent from 'react-native-add-calendar-event';
 
 class Reservation extends Component {
     constructor(props) {
@@ -35,6 +37,7 @@ class Reservation extends Component {
                     text: 'Ok',
                     onPress: () => {
                         this.presentLocalNotification(this.state.date);
+                        this.addReservationToCalendar(this.state.date);
                         this.resetForm();
                     },
                     style: 'default'
@@ -63,6 +66,17 @@ class Reservation extends Component {
         return permission;
     }
 
+    async obtainCalendarPermission() {
+        let permission = await Permissions.getAsync(Permissions.CALENDAR);
+        if (permission.status !== 'granted') {
+            permission = await Permissions.askAsync(Permissions.CALENDAR);
+            if (permission.status !== 'granted') {
+                Alert.alert('Permission not granted to show notifications');
+            }
+        }
+        return permission;
+    }
+
     async presentLocalNotification(date) {
         await this.obtainNotificationPermission();
         Notifications.presentLocalNotificationAsync({
@@ -75,6 +89,24 @@ class Reservation extends Component {
                 color: '#512DA8'
             }
         });
+    }
+
+    addReservationToCalendar = async (date) => {
+        await this.obtainCalendarPermission();
+        await Calendar.createEventAsync('1', {
+            title: 'Talati`s Kitchen Table Reservation',
+            startDate: new Date(Date.parse(date)),
+            endDate: new Date(Date.parse(date) + (2 * 60 * 60 * 1000)),
+            timeZone: 'Asia/Hong_Kong',
+            location: '121, Clear Water Bay Road, Clear Water Bay, Kowloon, Hong Kong'
+        })
+            .then(event => {
+                console.log('success', event);
+            })
+            .catch(error => {
+                console.log('failure', error);
+            });            
+
     }
 
     render() {
@@ -101,7 +133,7 @@ class Reservation extends Component {
                         <Switch
                             style={styles.formItem}
                             value={this.state.smoking}
-                            onTintColor='#512DA8'
+                            trackColor='#512DA8'
                             onValueChange={(value) => this.setState({smoking: value})}
                             >                            
                         </Switch>
